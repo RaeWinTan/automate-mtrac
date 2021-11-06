@@ -1,18 +1,23 @@
-//require('dotenv').config({ path: './config.env' });
-const PORT = process.env.PORT || 3000;
+require('dotenv').config({ path: './config.env' });
+const PORT = 8000;
 const axios = require('axios');
 const express = require('express');
 var bodyParser = require('body-parser');
 var jwt = require('express-jwt');
 const session = require('express-session');
+var MongoDBStore = require('connect-mongodb-session')(session);
 const app = express();
+var store = new MongoDBStore({
+  uri: process.env.ATLAS_URI,
+  collection: 'mySessions'
+});
 const mongoose = require('mongoose');
+
 const dbo = require('./db/conn');
 
 
 app.use(session({secret: "as;odfi928r9eh9wtuhHH#@*$Okghsf0sd", resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true }}));
+  saveUninitialized: true,store:store,cookie:{maxAge:1000*60*60*2}}));
 /* Create token to be used */
 app.use( bodyParser.json());
 
@@ -25,11 +30,14 @@ const requireLogin = () => {
     }
   }
 }
+app.get("/api/logout", (req, res)=>{
+  const dbConnect = dbo.getDb();
+  res.session.destroy((err)=>{
+    res.send();
+  })
 
-app.get('/', function(req, res) {
-  res.send('This is the API server');
-});
 
+})
 app.get("/api/getDefault", requireLogin(), (req,res)=>{
   const dbConnect = dbo.getDb();
   dbConnect.collection("mtracDefaultData").findOne({
@@ -37,7 +45,7 @@ app.get("/api/getDefault", requireLogin(), (req,res)=>{
   }).then((result)=>{
     res.send(result);
   },(err)=>{
-    res.send.status("DB ERROR");
+    res.status(501).send("DB ERROR");
   });
 })
 
@@ -130,7 +138,6 @@ app.post("/api/sendRac",requireLogin(), (req,res)=>{
 
 dbo.connectToServer(function (err) {
   if (err) {
-    console.log("DB SERVER DONONCOU COUNNED");
     process.exit();
   }
   app.listen(PORT, () => {

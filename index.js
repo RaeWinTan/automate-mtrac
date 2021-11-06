@@ -10,7 +10,9 @@ const mongoose = require('mongoose');
 const dbo = require('./db/conn');
 
 
-app.use(session({secret: "as;odfi928r9eh9wtuhHH#@*$Okghsf0sd"}));
+app.use(session({secret: "as;odfi928r9eh9wtuhHH#@*$Okghsf0sd", resave: false,
+  saveUninitialized: true,
+  cookie: { secure: true }}));
 /* Create token to be used */
 app.use( bodyParser.json());
 

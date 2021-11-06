@@ -1,5 +1,5 @@
 require('dotenv').config({ path: './config.env' });
-const PORT = 443;
+const PORT = 8000;
 const axios = require('axios');
 const express = require('express');
 var bodyParser = require('body-parser');

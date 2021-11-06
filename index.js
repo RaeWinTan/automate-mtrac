@@ -1,5 +1,5 @@
-require('dotenv').config({ path: './config.env' });
-const PORT = 8000;
+//require('dotenv').config({ path: './config.env' });
+const PORT = process.env.PORT || 3000;
 const axios = require('axios');
 const express = require('express');
 var bodyParser = require('body-parser');
@@ -130,6 +130,7 @@ app.post("/api/sendRac",requireLogin(), (req,res)=>{
 
 dbo.connectToServer(function (err) {
   if (err) {
+    console.log("DB SERVER DONONCOU COUNNED");
     process.exit();
   }
   app.listen(PORT, () => {

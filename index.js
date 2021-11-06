@@ -26,6 +26,9 @@ const requireLogin = () => {
   }
 }
 
+app.get('/', function(req, res) {
+  res.send('This is the API server');
+});
 
 app.get("/api/getDefault", requireLogin(), (req,res)=>{
   const dbConnect = dbo.getDb();

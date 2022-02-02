@@ -4,6 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
+    "tsc":"tsc",
+    "start:prod":"node build/index.js",
     "build": "tsc",
     "prestart": "npm run build",
     "start": "ts-node-dev --respawn --transpile-only src/index.ts",

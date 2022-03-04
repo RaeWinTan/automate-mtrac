@@ -6,23 +6,26 @@ export const mtracRouter = express.Router();
 import Axios, {AxiosObservable} from  'axios-observable';
 import {  catchError, first, switchMap, map, pluck} from "rxjs/operators";
 import {throwError} from "rxjs";
-/*
+
 const testLogin:string = "http://localhost:9000/mtrac/login";
 const testRac:string = "http://localhost:9000/mtrac/rac";
-const testHubNodeConn:string = "http://localhost:9000/mtrac/nodeHub";*/
+const testHubNodeConn:string = "http://localhost:9000/mtrac/nodeHub";
 //real connection strings
-const loginConn:string = "https://mtrac.ado.sg/api/auth/login";
-const racConn:string = "https://mtrac.ado.sg/api/rac";
-const hubNodeConn:string =  "https://mtrac.ado.sg/api/node/hub";
+
+const loginConn:string = "https://mtrac.ternary.digital/api/auth/login";
+const racConn:string = "https://mtrac.ternary.digital/api/rac";
+const hubNodeConn:string =  "https://mtrac.ternary.digital/api/node/hub";
 
 function login(credentials:Credential, timeout:number,retries:number,triesNo:number=1):AxiosObservable<any>{
   return Axios.post(loginConn,credentials,{timeout:timeout}).pipe(
     first(),
     catchError((err:AxiosError)=>{
+      console.log(err.message);
+      console.log(triesNo, retries);
       if(err?.response?.status === 400){
         return throwError({message:"wrong email or password", status:400});
       }
-      if (triesNo > retries) return throwError({message:"tried too many times", status:500});
+      if (triesNo > retries) return throwError({message:err.message, status:500});
       return login(credentials,timeout+1500, retries, triesNo+1);
     })
   );
@@ -40,7 +43,6 @@ function getNodeHub(timeout:number,retries:number,triesNo:number=1):AxiosObserva
 
 const racLink = (f:any, timeout:number, authorization:string):AxiosObservable<any> => Axios.post(racConn,f, {timeout:timeout, headers:{"authorization":`${authorization}`}});
 function sendRac(f:any, authorization:any, credentials:Credential, timeout:number, totalTries:number,times:number = 1):any{
-  let h:any = {"authorization":authorization, credentials:credentials};
   return racLink(f, timeout*times, authorization).pipe(
     first(),
     pluck("data"),
